@@ -98,5 +98,6 @@ def main():
 
         process_command(game_state, command)
 
+
 if __name__ == "__main__":
     main()

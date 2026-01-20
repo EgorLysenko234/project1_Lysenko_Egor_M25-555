@@ -43,6 +43,7 @@ def describe_current_room(game_state):
         print("Кажется, здесь есть загадка (используйте команду solve).")
         print()
 
+
 def solve_puzzle(game_state):
     """
     Args:
@@ -93,14 +94,12 @@ def solve_puzzle(game_state):
             print("    east -> hallway")
 
         elif current_room_name == "library":
-
             if "solved_puzzles" not in game_state:
                 game_state["solved_puzzles"] = []
             game_state["solved_puzzles"].append("library_access")
             print("Книжная полка сдвигается, открывая проход в секретную комнату!")
 
         elif current_room_name == "trap_room":
-
             game_state["player_inventory"].append("gem")
             print("Вы получили: gem")
 
@@ -109,7 +108,10 @@ def solve_puzzle(game_state):
             print("Золотая дверь с грохотом открывается!")
             print("Вы делаете шаг в темноту и...")
             print("\nВы получили плохую концовку!")
-            print("Вы открываете дверь, делаете шаг в темноту и не чувствуете почву под ногами!")
+            print(
+                "Вы открываете дверь,"
+                " делаете шаг в темноту и не чувствуете почву под ногами!"
+            )
             print("Вы упали в бездонную пропасть!")
             print("\nК сожалению, ваше путешествие завершилось трагически...")
             game_state["game_over"] = True
@@ -119,6 +121,7 @@ def solve_puzzle(game_state):
 
     if current_room_name == "trap_room":
         trigger_trap(game_state)
+
 
 def attempt_open_treasure(game_state):
     """
@@ -186,11 +189,12 @@ def trigger_trap(game_state):
 
     inventory = game_state["player_inventory"]
 
+    PROTECTED_ITEMS = ["rusty_key", "bronze_box"]
+    TRAP_MODULO = 10
+    TRAP_DAMAGE_THRESHOLD = 2
+
     if inventory:
-
-        protected_items = ["rusty_key", "bronze_box"]
-
-        losable_items = [item for item in inventory if item not in protected_items]
+        losable_items = [item for item in inventory if item not in PROTECTED_ITEMS]
 
         if losable_items:
             seed = game_state.get("steps", 0)
@@ -203,10 +207,10 @@ def trigger_trap(game_state):
             print(f"Вы потеряли предмет: {lost_item}!")
         else:
             seed = game_state.get("steps", 0)
-            modulo = 10
-            random_value = pseudo_random(seed, modulo)
 
-            if random_value < 2:
+            random_value = pseudo_random(seed, TRAP_MODULO)
+
+            if random_value < TRAP_DAMAGE_THRESHOLD:
                 print("Вы не смогли избежать ловушки... Игра окончена!")
                 game_state["game_over"] = True
             else:
@@ -214,11 +218,10 @@ def trigger_trap(game_state):
 
     else:
         seed = game_state.get("steps", 0)
-        modulo = 10
 
-        random_value = pseudo_random(seed, modulo)
+        random_value = pseudo_random(seed, TRAP_MODULO)
 
-        if random_value < 2:
+        if random_value < TRAP_DAMAGE_THRESHOLD:
             print("Вы не смогли избежать ловушки... Игра окончена!")
             game_state["game_over"] = True
         else:
