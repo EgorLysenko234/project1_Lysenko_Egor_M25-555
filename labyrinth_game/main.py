@@ -1,38 +1,38 @@
-
-
 """
 Главный файл игры Лабиринт
 """
 
-# Импортируем созданные модули и переменные
-from labyrinth_game.player_actions import show_inventory, move_player, use_item, take_item, get_input
-from labyrinth_game.utils import describe_current_room, solve_puzzle, attempt_open_treasure, show_help
-from labyrinth_game.constants import ROOMS, COMMANDS
+from labyrinth_game.constants import COMMANDS
+from labyrinth_game.player_actions import (
+    get_input,
+    move_player,
+    show_inventory,
+    take_item,
+    use_item,
+)
+from labyrinth_game.utils import describe_current_room, show_help
 
-# Функция обработки команды пользователя
+
 def process_command(game_state, command):
     """
     Args:
         game_state (dict): Состояние игры
         command (str): Введенная пользователем команда
     """
-    # Разделяем команду на части
     parts = command.strip().split()
-    if not parts:  # Пустая команда
+    if not parts:
         return
 
-    # Первое слово - команда, остальное - аргумент
     cmd = parts[0].lower()
-    arg = ' '.join(parts[1:]) if len(parts) > 1 else None
+    arg = " ".join(parts[1:]) if len(parts) > 1 else None
 
-    # Используем match/case для определения команды
     match cmd:
         case "look":
             describe_current_room(game_state)
 
         case "use":
             if arg:
-                use_item(arg, game_state)
+                use_item(game_state, arg)
             else:
                 print("Укажите предмет для использования.")
 
@@ -42,9 +42,7 @@ def process_command(game_state, command):
             else:
                 print("Укажите направление.")
 
-        # Односложные команды движения без "go"
         case "north" | "south" | "east" | "west":
-            from labyrinth_game.player_actions import move_player
             move_player(game_state, cmd)
 
         case "take":
@@ -57,11 +55,13 @@ def process_command(game_state, command):
             show_inventory(game_state)
 
         case "solve":
-            if game_state['current_room'] == 'treasure_room':
+            if game_state["current_room"] == "treasure_room":
                 from labyrinth_game.utils import attempt_open_treasure
+
                 attempt_open_treasure(game_state)
             else:
                 from labyrinth_game.utils import solve_puzzle
+
                 solve_puzzle(game_state)
 
         case "help":
@@ -69,43 +69,34 @@ def process_command(game_state, command):
 
         case "quit" | "exit" | "выход":
             print("Выход из игры.")
-            game_state['game_over'] = True
+            game_state["game_over"] = True
 
         case _:
             print(f"Неизвестная команда: {cmd}")
 
-# Основной игровой цикл
+
 def main():
-
-# Определяем состояние игрока
     game_state = {
-      'player_inventory': [], # Инвентарь игрока
-      'current_room': 'entrance', # Текущая комната
-      'game_over': False, # Значения окончания игры
-      'steps_taken': 0 # Количество шагов
-}
+        "player_inventory": [],
+        "current_room": "entrance",
+        "game_over": False,
+        "steps": 0,
+        "solved_puzzles": [],
+    }
 
-# Выводим приветственное сообщение
     print("Добро пожаловать в Лабиринт сокровищ!")
 
-# Вызываем функцию, описывающую стартовую комнату
+    print("\nЧтобы начать, ознакомьтесь с доступными командами:")
+    show_help(COMMANDS)
+    print("\nДля продолжения введите команду (например, 'look' для осмотра комнаты).")
+    print("-" * 50)
+
     describe_current_room(game_state)
 
-    # Цикл while, который будет работать, пока игра не окончена
-    while not game_state['game_over']:
-        # Считываем команду от пользователя
+    while not game_state["game_over"]:
         command = get_input("> ")
 
-        # Обрабатываем команду
         process_command(game_state, command)
 
-        # Обработка команды выхода
-        if command == "выход":
-            game_state['game_over'] = True
-            print("Спасибо за игру!")
-        else:
-            # Выводим введенную команду
-            print(f"Вы ввели: {command}")
-
- if __name__ == "__main__":
+if __name__ == "__main__":
     main()
