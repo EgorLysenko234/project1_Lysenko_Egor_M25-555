@@ -10,3 +10,12 @@
 
 bash
 poetry install
+
+4. Запустите игру командой:
+
+bash
+poetry run project
+
+# ЗАпись asciinema
+
+https://asciinema.org/a/kSpZOkivIXXSgwDv
